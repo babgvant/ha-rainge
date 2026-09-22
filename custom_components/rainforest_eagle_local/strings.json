@@ -1,0 +1,67 @@
+{
+  "title": "Rainforest EAGLE Local",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to your EAGLE",
+        "description": "Uses the EAGLE local LAN API. EAGLE 3 normally requires HTTPS with certificate verification disabled.",
+        "data": {
+          "host": "Host or IP address",
+          "cloud_id": "Cloud ID",
+          "install_code": "Install Code",
+          "protocol": "Protocol",
+          "verify_ssl": "Verify SSL certificate",
+          "update_interval": "Update interval"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reconnect to your EAGLE",
+        "description": "Enter the current EAGLE credentials.",
+        "data": {
+          "host": "Host or IP address",
+          "cloud_id": "Cloud ID",
+          "install_code": "Install Code",
+          "protocol": "Protocol",
+          "verify_ssl": "Verify SSL certificate",
+          "update_interval": "Update interval"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to connect to the EAGLE",
+      "invalid_auth": "The Cloud ID or Install Code is incorrect",
+      "timeout": "The EAGLE did not respond in time",
+      "invalid_response": "The EAGLE returned an unsupported or malformed response"
+    },
+    "abort": {
+      "already_configured": "This meter is already configured",
+      "reauth_successful": "Reauthentication was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "EAGLE polling options",
+        "data": {
+          "protocol": "Protocol",
+          "verify_ssl": "Verify SSL certificate",
+          "update_interval": "Update interval"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "power": { "name": "Current power" },
+      "energy_imported": { "name": "Energy imported" },
+      "energy_exported": { "name": "Energy exported" },
+      "voltage": { "name": "Voltage" },
+      "current": { "name": "Current" },
+      "frequency": { "name": "Frequency" },
+      "price": { "name": "Price" },
+      "rate_label": { "name": "Rate label" },
+      "connection_status": { "name": "Connection status" },
+      "last_contact": { "name": "Last contact" }
+    }
+  }
+}
