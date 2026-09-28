@@ -118,13 +118,16 @@ async def test_rejects_unsafe_xml() -> None:
         ("0", "kW", (Decimal(0), Decimal(0))),
         ("500", "W", (Decimal("0.5"), Decimal(0))),
         ("-500", "W", (Decimal(0), Decimal("0.5"))),
+        ("0", None, (Decimal(0), Decimal(0))),
+        ("0", "", (Decimal(0), Decimal(0))),
     ],
 )
 def test_split_grid_power(
-    value: str, unit: str, expected: tuple[Decimal, Decimal]
+    value: str, unit: str | None, expected: tuple[Decimal, Decimal]
 ) -> None:
     assert split_grid_power(Decimal(value), unit) == expected
 
 
 def test_split_grid_power_rejects_unknown_unit() -> None:
     assert split_grid_power(Decimal(1), "V") is None
+    assert split_grid_power(Decimal(1), None) is None
