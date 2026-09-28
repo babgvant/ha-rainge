@@ -13,6 +13,7 @@ from custom_components.rainforest_eagle_local.api import (
     EagleResponseError,
     EagleTimeoutError,
 )
+from custom_components.rainforest_eagle_local.power import split_grid_power
 
 DEVICE_LIST = b"""<DeviceList><Device><Name>Power Meter</Name>
 <HardwareAddress>0x001350050047376f</HardwareAddress><Manufacturer>Generic</Manufacturer>
@@ -107,3 +108,23 @@ async def test_rejects_unsafe_xml() -> None:
     api = EagleLocalApi(FakeSession([FakeResponse(payload)]), "host", "id", "code")  # type: ignore[arg-type]
     with pytest.raises(EagleResponseError, match="Unsafe XML"):
         await api.async_get_devices()
+
+
+@pytest.mark.parametrize(
+    ("value", "unit", "expected"),
+    [
+        ("1.250", "kW", (Decimal("1.250"), Decimal(0))),
+        ("-1.250", "kW", (Decimal(0), Decimal("1.250"))),
+        ("0", "kW", (Decimal(0), Decimal(0))),
+        ("500", "W", (Decimal("0.5"), Decimal(0))),
+        ("-500", "W", (Decimal(0), Decimal("0.5"))),
+    ],
+)
+def test_split_grid_power(
+    value: str, unit: str, expected: tuple[Decimal, Decimal]
+) -> None:
+    assert split_grid_power(Decimal(value), unit) == expected
+
+
+def test_split_grid_power_rejects_unknown_unit() -> None:
+    assert split_grid_power(Decimal(1), "V") is None

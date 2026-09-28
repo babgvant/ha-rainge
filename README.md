@@ -30,11 +30,19 @@ Protocol, verification, and interval can be changed later with **Configure**. Cr
 The integration issues one `device_query` with `<All>Y</All>` per polling cycle. It exposes:
 
 - instantaneous demand/current power;
+- nonnegative grid import and export power derived from signed current power;
 - separate delivered/imported and received/exported cumulative energy;
 - connection status and last contact;
 - voltage, current, frequency, price, and rate label when the meter reports those variables.
 
 Power and energy values use the units returned by the EAGLE API. The documented meter response returns formatted values such as `21.499 kW`; the integration does not reapply Zigbee multiplier/divisor values. Import and export are deliberately never combined into an ambiguous net-energy total.
+
+**Current power** remains the signed net grid reading. **Grid import power** is its
+positive part, and **Grid export power** is the magnitude of its negative part;
+both are nonnegative kW sensors and one reads zero when power flows in the other
+direction. Use those two power sensors with Energy Compositor's grid import and
+export power channels. Keep **Energy imported** and **Energy exported** as the
+corresponding cumulative energy sources.
 
 The stock Home Assistant integration's principal EAGLE-200 behavior is preserved: meter discovery, current demand, delivered energy, received energy, local polling, stable hardware-address IDs, and device metadata. This custom integration adds explicit HTTPS/certificate options, more precise setup errors, reauthentication, diagnostics, and additional optional variables.
 

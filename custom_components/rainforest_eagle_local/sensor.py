@@ -28,6 +28,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 from .coordinator import EagleCoordinator
+from .power import split_grid_power
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -82,6 +83,8 @@ SENSORS = (
     EagleSensorDescription(key="zigbee:RateLabel", translation_key="rate_label"),
 )
 
+POWER_KEY = "zigbee:InstantaneousDemand"
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -92,6 +95,10 @@ async def async_setup_entry(
     entities: list[SensorEntity] = [
         EagleReadingSensor(coordinator, description) for description in SENSORS
     ]
+    entities.extend(
+        EagleDirectionalPowerSensor(coordinator, direction)
+        for direction in ("import", "export")
+    )
     entities.extend(
         (EagleConnectionSensor(coordinator), EagleLastContactSensor(coordinator))
     )
@@ -160,6 +167,39 @@ class EagleReadingSensor(EagleBaseSensor):
         ):
             return {"api_unit": reading.unit}
         return None
+
+
+class EagleDirectionalPowerSensor(EagleBaseSensor):
+    """One nonnegative direction of signed grid power."""
+
+    _attr_device_class = SensorDeviceClass.POWER
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = UnitOfPower.KILO_WATT
+
+    def __init__(self, coordinator: EagleCoordinator, direction: str) -> None:
+        super().__init__(coordinator, f"power_{direction}")
+        self._direction = direction
+        self._attr_translation_key = f"power_{direction}"
+
+    @property
+    def available(self) -> bool:
+        reading = self.coordinator.data.readings.get(POWER_KEY)
+        return (
+            super().available
+            and reading is not None
+            and isinstance(reading.value, Decimal)
+            and split_grid_power(reading.value, reading.unit) is not None
+        )
+
+    @property
+    def native_value(self) -> Decimal | None:
+        reading = self.coordinator.data.readings.get(POWER_KEY)
+        if reading is None or not isinstance(reading.value, Decimal):
+            return None
+        directions = split_grid_power(reading.value, reading.unit)
+        if directions is None:
+            return None
+        return directions[0 if self._direction == "import" else 1]
 
 
 class EagleConnectionSensor(EagleBaseSensor):

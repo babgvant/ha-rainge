@@ -53,6 +53,8 @@
   "entity": {
     "sensor": {
       "power": { "name": "Current power" },
+      "power_import": { "name": "Grid import power" },
+      "power_export": { "name": "Grid export power" },
       "energy_imported": { "name": "Energy imported" },
       "energy_exported": { "name": "Energy exported" },
       "voltage": { "name": "Voltage" },
